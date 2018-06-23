@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.27703.2018
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetArtifact", "NetArtifact\NetArtifact.csproj", "{F54492C4-7B06-4A42-98DE-1560E0D6E7B4}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F54492C4-7B06-4A42-98DE-1560E0D6E7B4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F54492C4-7B06-4A42-98DE-1560E0D6E7B4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F54492C4-7B06-4A42-98DE-1560E0D6E7B4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F54492C4-7B06-4A42-98DE-1560E0D6E7B4}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {0B651B0D-381D-4CE2-BA61-6A7E8FBA32C3}
+	EndGlobalSection
+EndGlobal
