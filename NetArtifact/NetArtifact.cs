@@ -1,15 +1,21 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using Dapper;
+using NetArtifact.Utils;
+using Newtonsoft.Json.Linq;
 using SharpCompress.Archives;
 using SharpCompress.Archives.Zip;
 using SharpCompress.Common;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Configuration;
+using System.Data;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Management.Automation;
 using System.Management.Automation.Runspaces;
+using System.Runtime.Serialization;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Windows.Forms;
 using System.Xml;
 
@@ -24,7 +30,144 @@ namespace NetArtifact
         public NetArtifact()
         {
             InitializeComponent();
+
+            Initializers_DBExport_Load();
         }
+
+        #region 数据导出配置
+
+        private void btnDC_Click(object sender, EventArgs e)
+        {
+            CreateSql();
+        }
+
+        private void Initializers_DBExport_Load()
+        {
+            string tablesStr = ConfigurationManager.AppSettings["Tables"].ToString();//获取要生成脚本的表串
+            string[] arrTable = tablesStr.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+            if (arrTable.Length > 0)
+            {
+                System.Object[] ItemObject = new System.Object[arrTable.Length];
+                for (int i = 0; i < arrTable.Length; i++)//循环每个表
+                {
+                    ItemObject[i] = arrTable[i];
+                }
+                chklTableName.Items.AddRange(ItemObject);
+            }
+        }
+        private void chkAll_Click(object sender, EventArgs e)
+        {
+            for (int i = 0; i < chklTableName.Items.Count; i++)
+            {
+                chklTableName.SetItemChecked(i, chkAll.Checked);
+            }
+        }
+
+        private void CreateSql()
+        {
+            List<string> arrTable = new List<string>();
+            if (chklTableName.CheckedItems.Count == 0)
+            {
+                MessageBox.Show("请选择表", "提示", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            for (int i = 0; i < chklTableName.CheckedItems.Count; i++)
+            {
+                arrTable.Add(chklTableName.CheckedItems[i].ToString());
+            }
+
+            #region 导出数据
+
+            DataSet ds = new DataSet();
+            foreach (string tableName in arrTable)
+            {
+                string sql = string.Format("select * from {0}", tableName);
+
+                using (var conn = DapperUtils.DapperFactory.CreateOracleConnection())
+                {
+                    var listDataReader = conn.ExecuteReader(sql);
+                    if (listDataReader != null)
+                    {
+                        var dt = new DataTable();
+                        dt.Load(listDataReader);
+                        if (dt != null && dt.Rows.Count > 0)
+                        {
+                            dt.TableName = tableName;
+                            ds.Tables.Add(dt);
+                        }
+                    }
+
+                }
+            }
+            if (ds.Tables.Count > 0)
+            {
+                saveFileDialog1.Filter = "hybak files(.bak)|*.bak";
+                saveFileDialog1.RestoreDirectory = true;
+                saveFileDialog1.FileName = DateTime.Now.ToString("yyyyMMddHHmmss") + ".bak";
+                if (saveFileDialog1.ShowDialog() == DialogResult.OK)
+                {
+                    byte[] bytes = GetBinaryFormatDataSet(ds);
+
+                    FileStream fs = new FileStream(saveFileDialog1.FileName.ToString(), FileMode.Create);
+                    fs.Write(bytes, 0, bytes.Length);
+                    fs.Close();
+
+                    MessageBox.Show("导出成功.");
+                }
+            }
+            else
+            {
+                MessageBox.Show("生成的数据为空", "提示", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+            #endregion
+        }
+
+        public static byte[] GetBinaryFormatDataSet(DataSet ds)
+        {
+            //创建内存流
+            MemoryStream memStream = new MemoryStream();
+            //产生二进制序列化格式
+            IFormatter formatter = new BinaryFormatter();
+            //指定DataSet串行化格式是二进制
+            ds.RemotingFormat = SerializationFormat.Binary;
+            //串行化到内存中
+            formatter.Serialize(memStream, ds);
+            //将DataSet转化成byte[]
+            byte[] binaryResult = memStream.ToArray();
+            //清空和释放内存流
+            memStream.Close();
+            memStream.Dispose();
+            return binaryResult;
+        }
+
+        /// <summary>
+        /// DataSet反序列化
+        /// </summary>
+        /// <param name="binaryData">需要反序列化的byte[]</param>
+        /// <returns></returns>
+        public static DataSet RetrieveDataSet(byte[] binaryData)
+        {
+            //创建内存流
+            MemoryStream memStream = new MemoryStream(binaryData);
+            //产生二进制序列化格式
+            IFormatter formatter = new BinaryFormatter();
+            //反串行化到内存中
+            object obj = formatter.Deserialize(memStream);
+            //类型检验
+            if (obj is DataSet)
+            {
+                DataSet dataSetResult = (DataSet)obj;
+                return dataSetResult;
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        #endregion
 
         private void NetArtifact_Load(object sender, EventArgs e)
         {
@@ -479,6 +622,8 @@ namespace NetArtifact
 
             SystemTypeCurr = sytemType;
         }
+
+
     }
 
     /// <summary>
