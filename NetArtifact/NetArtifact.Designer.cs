@@ -49,12 +49,15 @@
             this.label1 = new System.Windows.Forms.Label();
             this.splitter1 = new System.Windows.Forms.Splitter();
             this.saveFileDialog1 = new System.Windows.Forms.SaveFileDialog();
+            this.chkDataExport = new System.Windows.Forms.CheckBox();
+            this.groupBox3 = new System.Windows.Forms.GroupBox();
             this.参数.SuspendLayout();
             this.groupBox1.SuspendLayout();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tabPage2.SuspendLayout();
             this.groupBox2.SuspendLayout();
+            this.groupBox3.SuspendLayout();
             this.SuspendLayout();
             // 
             // 参数
@@ -65,9 +68,9 @@
             this.参数.Controls.Add(this.txtPublishProfiles);
             this.参数.Controls.Add(this.btnSln);
             this.参数.Controls.Add(this.txtBackUpDir);
-            this.参数.Location = new System.Drawing.Point(25, 84);
+            this.参数.Location = new System.Drawing.Point(14, 67);
             this.参数.Name = "参数";
-            this.参数.Size = new System.Drawing.Size(390, 114);
+            this.参数.Size = new System.Drawing.Size(390, 106);
             this.参数.TabIndex = 8;
             this.参数.TabStop = false;
             this.参数.Text = "参数";
@@ -125,7 +128,7 @@
             // 
             // btnRelease
             // 
-            this.btnRelease.Location = new System.Drawing.Point(31, 205);
+            this.btnRelease.Location = new System.Drawing.Point(20, 221);
             this.btnRelease.Name = "btnRelease";
             this.btnRelease.Size = new System.Drawing.Size(75, 23);
             this.btnRelease.TabIndex = 7;
@@ -135,9 +138,9 @@
             // 
             // rtbMessage
             // 
-            this.rtbMessage.Location = new System.Drawing.Point(31, 238);
+            this.rtbMessage.Location = new System.Drawing.Point(14, 250);
             this.rtbMessage.Name = "rtbMessage";
-            this.rtbMessage.Size = new System.Drawing.Size(384, 239);
+            this.rtbMessage.Size = new System.Drawing.Size(390, 152);
             this.rtbMessage.TabIndex = 9;
             this.rtbMessage.Text = "";
             // 
@@ -153,9 +156,9 @@
             // groupBox1
             // 
             this.groupBox1.Controls.Add(this.cbbSystemType);
-            this.groupBox1.Location = new System.Drawing.Point(31, 22);
+            this.groupBox1.Location = new System.Drawing.Point(14, 6);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(384, 56);
+            this.groupBox1.Size = new System.Drawing.Size(390, 56);
             this.groupBox1.TabIndex = 11;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "系统";
@@ -164,14 +167,15 @@
             // 
             this.tabControl1.Controls.Add(this.tabPage1);
             this.tabControl1.Controls.Add(this.tabPage2);
-            this.tabControl1.Location = new System.Drawing.Point(2, 3);
+            this.tabControl1.Location = new System.Drawing.Point(1, 3);
             this.tabControl1.Name = "tabControl1";
             this.tabControl1.SelectedIndex = 0;
-            this.tabControl1.Size = new System.Drawing.Size(452, 510);
+            this.tabControl1.Size = new System.Drawing.Size(427, 434);
             this.tabControl1.TabIndex = 12;
             // 
             // tabPage1
             // 
+            this.tabPage1.Controls.Add(this.groupBox3);
             this.tabPage1.Controls.Add(this.groupBox1);
             this.tabPage1.Controls.Add(this.btnRelease);
             this.tabPage1.Controls.Add(this.rtbMessage);
@@ -179,7 +183,7 @@
             this.tabPage1.Location = new System.Drawing.Point(4, 22);
             this.tabPage1.Name = "tabPage1";
             this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage1.Size = new System.Drawing.Size(444, 484);
+            this.tabPage1.Size = new System.Drawing.Size(419, 408);
             this.tabPage1.TabIndex = 0;
             this.tabPage1.Text = "发布配置";
             this.tabPage1.UseVisualStyleBackColor = true;
@@ -190,7 +194,7 @@
             this.tabPage2.Location = new System.Drawing.Point(4, 22);
             this.tabPage2.Name = "tabPage2";
             this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage2.Size = new System.Drawing.Size(444, 484);
+            this.tabPage2.Size = new System.Drawing.Size(419, 408);
             this.tabPage2.TabIndex = 1;
             this.tabPage2.Text = "数据导出配置";
             this.tabPage2.UseVisualStyleBackColor = true;
@@ -206,14 +210,14 @@
             this.groupBox2.Location = new System.Drawing.Point(3, 3);
             this.groupBox2.Name = "groupBox2";
             this.groupBox2.Padding = new System.Windows.Forms.Padding(5);
-            this.groupBox2.Size = new System.Drawing.Size(438, 478);
+            this.groupBox2.Size = new System.Drawing.Size(413, 402);
             this.groupBox2.TabIndex = 7;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = " 系统初始化脚本 ";
             // 
             // btnDC
             // 
-            this.btnDC.Location = new System.Drawing.Point(14, 428);
+            this.btnDC.Location = new System.Drawing.Point(8, 362);
             this.btnDC.Name = "btnDC";
             this.btnDC.Size = new System.Drawing.Size(166, 23);
             this.btnDC.TabIndex = 15;
@@ -237,7 +241,7 @@
             this.chklTableName.FormattingEnabled = true;
             this.chklTableName.Location = new System.Drawing.Point(8, 52);
             this.chklTableName.Name = "chklTableName";
-            this.chklTableName.Size = new System.Drawing.Size(406, 356);
+            this.chklTableName.Size = new System.Drawing.Size(383, 292);
             this.chklTableName.TabIndex = 10;
             // 
             // label1
@@ -254,15 +258,35 @@
             // 
             this.splitter1.Location = new System.Drawing.Point(5, 19);
             this.splitter1.Name = "splitter1";
-            this.splitter1.Size = new System.Drawing.Size(425, 454);
+            this.splitter1.Size = new System.Drawing.Size(400, 378);
             this.splitter1.TabIndex = 9;
             this.splitter1.TabStop = false;
+            // 
+            // chkDataExport
+            // 
+            this.chkDataExport.AutoSize = true;
+            this.chkDataExport.Location = new System.Drawing.Point(11, 16);
+            this.chkDataExport.Name = "chkDataExport";
+            this.chkDataExport.Size = new System.Drawing.Size(96, 16);
+            this.chkDataExport.TabIndex = 7;
+            this.chkDataExport.Text = "数据导出配置";
+            this.chkDataExport.UseVisualStyleBackColor = true;
+            // 
+            // groupBox3
+            // 
+            this.groupBox3.Controls.Add(this.chkDataExport);
+            this.groupBox3.Location = new System.Drawing.Point(14, 175);
+            this.groupBox3.Name = "groupBox3";
+            this.groupBox3.Size = new System.Drawing.Size(390, 40);
+            this.groupBox3.TabIndex = 12;
+            this.groupBox3.TabStop = false;
+            this.groupBox3.Text = "配置";
             // 
             // NetArtifact
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(457, 514);
+            this.ClientSize = new System.Drawing.Size(433, 448);
             this.Controls.Add(this.tabControl1);
             this.Name = "NetArtifact";
             this.Text = "NetArtifact";
@@ -275,6 +299,8 @@
             this.tabPage2.ResumeLayout(false);
             this.groupBox2.ResumeLayout(false);
             this.groupBox2.PerformLayout();
+            this.groupBox3.ResumeLayout(false);
+            this.groupBox3.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -302,6 +328,8 @@
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Splitter splitter1;
         private System.Windows.Forms.SaveFileDialog saveFileDialog1;
+        private System.Windows.Forms.CheckBox chkDataExport;
+        private System.Windows.Forms.GroupBox groupBox3;
     }
 }
 

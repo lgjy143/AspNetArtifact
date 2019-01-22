@@ -104,6 +104,7 @@ namespace NetArtifact
             {
                 saveFileDialog1.Filter = "hybak files(.bak)|*.bak";
                 saveFileDialog1.RestoreDirectory = true;
+                //saveFileDialog1.InitialDirectory = txtPublishProfiles.Text;
                 saveFileDialog1.FileName = DateTime.Now.ToString("yyyyMMddHHmmss") + ".bak";
                 if (saveFileDialog1.ShowDialog() == DialogResult.OK)
                 {
@@ -228,10 +229,11 @@ namespace NetArtifact
             return bo;
         }
 
+        //发布解决方案
         private string Publish(Utils.RichTextBoxUtils richText)
         {
             var retVal = string.Empty;
-            richText.Write("正在发布解决");
+            richText.Write("正在发布解决方案");
             try
             {
                 var sln = txtSln.Text;
@@ -270,21 +272,18 @@ namespace NetArtifact
                     {
                         retVal += result;
                     }
-                    richText.Write("发布解决完成" + retVal);
+                    richText.Write("发布解决方案完成" + retVal);
                 }
             }
             catch (Exception ex)
             {
                 retVal = "执行InvokeMsBuild出错：" + ex.Message;
-                richText.Write("发布解决错误:" + retVal);
+                richText.Write("发布解决方案错误:" + retVal);
             }
             return retVal;
         }
 
-        /// <summary>
-        /// 删除配置文件
-        /// </summary>
-        /// <returns></returns>
+        // 删除配置文件
         private string RemoveConfig(Utils.RichTextBoxUtils richText)
         {
             string retVal = string.Empty;
@@ -346,10 +345,8 @@ namespace NetArtifact
             }
             return retVal;
         }
-        /// <summary>
-        /// 打包发布文件
-        /// </summary>
-        /// <returns></returns>
+
+        //打包发布文件
         private string Pack(Utils.RichTextBoxUtils richText)
         {
             richText.Write("正在打包发布文件");
@@ -374,7 +371,11 @@ namespace NetArtifact
 
                 var to = txtPublishProfiles.Text + "\\" + softVersion + ".zip";
 
-                ArchiveFromTo(dirPublish, to);
+                retVal = ArchiveFromTo(dirPublish, to);
+                if (!string.IsNullOrEmpty(retVal))
+                {
+                    richText.Write("打包发布文件错误:" + retVal);
+                }
 
                 richText.Write("打包发布文件完成");
             }
@@ -386,6 +387,7 @@ namespace NetArtifact
             return retVal;
         }
 
+        #region 文件压缩
         private string ArchiveFromTo(string from, string toFile)
         {
             var retVal = string.Empty;
@@ -426,7 +428,47 @@ namespace NetArtifact
             return retVal;
         }
 
-        private void ArchiveMulti(ZipArchive archive, string from, string toFile)
+        private string ArchiveFromTo(string from, string toFile, string notDirName)
+        {
+            var retVal = string.Empty;
+            try
+            {
+                //Stopwatch sw = new Stopwatch();
+                //sw.Start();
+
+                //using (var archive = ZipArchive.Create())
+                //{
+                //    archive.AddAllFromDirectory(from);
+                //    archive.SaveTo(toFile, CompressionType.Deflate);
+                //}
+                //sw.Stop();
+
+                //txtPublishProfiles.Text = "archive.AddAllFromDirectory:" + sw.Elapsed.TotalSeconds + " 秒";
+
+                //sw.Restart();
+                //sw.Start();
+
+                using (var archive = ZipArchive.Create())
+                {
+                    ArchiveMulti(archive, from, toFile, notDirName);
+
+                    using (FileStream fs_scratchPath = new FileStream(toFile, FileMode.OpenOrCreate, FileAccess.Write))
+                    {
+                        archive.SaveTo(fs_scratchPath, CompressionType.Deflate);
+                        fs_scratchPath.Close();
+                    }
+                }
+                //sw.Stop();
+                //txtPublishProfiles.Text += " | archive.AddEntry：" + sw.Elapsed.TotalSeconds + " 秒";
+            }
+            catch (Exception ex)
+            {
+                retVal = "压缩文件出错：" + ex.Message;
+            }
+            return retVal;
+        }
+
+        private void ArchiveMulti(ZipArchive archive, string from, string toFile, string notDirName)
         {
             DirectoryInfo di = new DirectoryInfo(from);
             foreach (var fi in di.GetFiles())
@@ -436,18 +478,19 @@ namespace NetArtifact
             var dris = di.GetDirectories();
             foreach (var dir in dris)
             {
-                ArchiveMulti(archive, dir.FullName, toFile);
+                if (dir.Name == notDirName)//vs 编译配置文件，不添加
+                    continue;
+
+                ArchiveMulti(archive, dir.FullName, toFile, notDirName);
             }
         }
+        #endregion
 
-        /// <summary>
-        /// 源码备份
-        /// </summary>
-        /// <returns></returns>
+        // 源码备份
         private string BackupSourceCode(Utils.RichTextBoxUtils richText)
         {
             var retVal = string.Empty;
-
+            var notDirName = ".vs";
             try
             {
                 var backDir = txtBackUpDir.Text;
@@ -466,7 +509,11 @@ namespace NetArtifact
 
                 var to = Path.Combine(txtBackUpDir.Text, fileName + DateTime.Now.ToString("yyyy-MM-dd HH") + ".zip");
 
-                ArchiveFromTo(from, to);
+                retVal = ArchiveFromTo(from, to, notDirName);
+                if (!string.IsNullOrEmpty(retVal))
+                {
+                    richText.Write("源码备份出错: " + retVal);
+                }
 
                 richText.Write("备份源码完成");
             }
@@ -478,6 +525,65 @@ namespace NetArtifact
                 richText.Write("备份源码错误:" + retVal);
             }
 
+            return retVal;
+        }
+        //数据配置导出
+        private string DataExport(RichTextBoxUtils richText)
+        {
+            var retVal = string.Empty;
+            richText.Write("正在数据配置导出");
+
+            try
+            {
+                string tablesStr = ConfigurationManager.AppSettings["Tables"].ToString();//获取要生成脚本的表串
+                string[] arrTable = tablesStr.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                if (arrTable.Length == 0)
+                {
+                    retVal = "未配置表";
+                    richText.Write("数据配置导出:" + retVal);
+                    return retVal;
+                }
+
+                DataSet ds = new DataSet();
+                foreach (string tableName in arrTable)
+                {
+                    string sql = string.Format("select * from {0}", tableName);
+
+                    using (var conn = DapperUtils.DapperFactory.CreateOracleConnection())
+                    {
+                        var listDataReader = conn.ExecuteReader(sql);
+                        if (listDataReader != null)
+                        {
+                            var dt = new DataTable();
+                            dt.Load(listDataReader);
+                            if (dt != null && dt.Rows.Count > 0)
+                            {
+                                dt.TableName = tableName;
+                                ds.Tables.Add(dt);
+                            }
+                        }
+                    }
+                }
+                if (ds.Tables.Count > 0)
+                {
+                    byte[] bytes = GetBinaryFormatDataSet(ds);
+
+                    FileStream fs = new FileStream(Path.Combine(txtPublishProfiles.Text, DateTime.Now.ToString("yyyyMMddHHmmss") + ".bak"), FileMode.Create);
+                    fs.Write(bytes, 0, bytes.Length);
+                    fs.Close();
+
+                    richText.Write("数据配置导出完成.");
+                }
+                else
+                {
+                    richText.Write("生成的数据为空.");
+                }
+            }
+            catch (Exception ex)
+            {
+                retVal = "数据配置导出错误:" + ex.Message;
+                richText.Write("数据配置导出错误:" + retVal);
+            }
             return retVal;
         }
 
@@ -501,6 +607,7 @@ namespace NetArtifact
             SetControlEnable(txtPublishProfiles, v);
             SetControlEnable(txtBackUpDir, v);
             SetControlEnable(cbbSystemType, v);
+            SetControlEnable(chkDataExport, v);
         }
 
         #endregion
@@ -527,19 +634,26 @@ namespace NetArtifact
             var richText = new Utils.RichTextBoxUtils(this.rtbMessage);
 
             richText.Write("==========发布程序开始==========");
-
+            //发布解决方案
             retVal = Publish(richText);
             if (VerifyResult(retVal))
                 return;
-
+            //移除配置
             retVal = RemoveConfig(richText);
             if (VerifyResult(retVal))
                 return;
-
+            //打包发布文件
             retVal = Pack(richText);
             if (VerifyResult(retVal))
                 return;
-
+            //先导出数据配置
+            if (chkDataExport.Checked)
+            {
+                retVal = DataExport(richText);
+                if (VerifyResult(retVal))
+                    return;
+            }
+            //后备份源码
             retVal = BackupSourceCode(richText);
             if (VerifyResult(retVal))
                 return;
@@ -622,7 +736,6 @@ namespace NetArtifact
 
             SystemTypeCurr = sytemType;
         }
-
 
     }
 
