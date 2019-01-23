@@ -496,7 +496,7 @@ namespace NetArtifact
         private string BackupSourceCode(Utils.RichTextBoxUtils richText)
         {
             var retVal = string.Empty;
-            var notDirName = ".vs";
+            var notDirName = ".vs"; //vs开发工具配置文件，过滤不备份
             try
             {
                 var backDir = txtBackUpDir.Text;
