@@ -450,7 +450,7 @@ namespace NetArtifact
 
                 using (var archive = ZipArchive.Create())
                 {
-                    ArchiveMulti(archive, from, toFile, notDirName);
+                    ArchiveMulti(archive, from, from, toFile, notDirName);
 
                     using (FileStream fs_scratchPath = new FileStream(toFile, FileMode.OpenOrCreate, FileAccess.Write))
                     {
@@ -468,20 +468,26 @@ namespace NetArtifact
             return retVal;
         }
 
-        private void ArchiveMulti(ZipArchive archive, string from, string toFile, string notDirName)
+        private void ArchiveMulti(ZipArchive archive, string root, string from, string toFile, string notDirName)
         {
             DirectoryInfo di = new DirectoryInfo(from);
+            var dris = di.GetDirectories();
             foreach (var fi in di.GetFiles())
             {
-                archive.AddEntry(fi.Name, fi.OpenRead(), true);
+                //var fileInfo = new FileInfo(from);
+                //archive.AddEntry(fi.FullName.Substring(from.Length), fileInfo.OpenRead(), true, fileInfo.Length,
+                //                         fileInfo.LastWriteTime);
+
+                archive.AddEntry(fi.FullName.Substring(root.Length), fi.OpenRead(), true);
+
+                //archive.AddEntry(fi.Name, fi.OpenRead(), true);
             }
-            var dris = di.GetDirectories();
             foreach (var dir in dris)
             {
                 if (dir.Name == notDirName)//vs 编译配置文件，不添加
                     continue;
 
-                ArchiveMulti(archive, dir.FullName, toFile, notDirName);
+                ArchiveMulti(archive, root, dir.FullName, toFile, notDirName);
             }
         }
         #endregion
@@ -510,6 +516,8 @@ namespace NetArtifact
                 var to = Path.Combine(txtBackUpDir.Text, fileName + DateTime.Now.ToString("yyyy-MM-dd HH") + ".zip");
 
                 retVal = ArchiveFromTo(from, to, notDirName);
+                //ZipHelper.ZipFileDirectory(from, to);
+                //ArchiveFromTo(from, to, notDirName);
                 if (!string.IsNullOrEmpty(retVal))
                 {
                     richText.Write("源码备份出错: " + retVal);
