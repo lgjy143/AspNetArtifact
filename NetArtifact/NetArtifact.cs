@@ -9,7 +9,6 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Configuration;
 using System.Data;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Management.Automation;
@@ -478,7 +477,7 @@ namespace NetArtifact
                 //archive.AddEntry(fi.FullName.Substring(from.Length), fileInfo.OpenRead(), true, fileInfo.Length,
                 //                         fileInfo.LastWriteTime);
 
-                archive.AddEntry(fi.FullName.Substring(root.Length), fi.OpenRead(), true);
+                archive.AddEntry(fi.FullName.Substring(root.Length), fi.OpenRead(), true, fi.Length, fi.LastWriteTime);
 
                 //archive.AddEntry(fi.Name, fi.OpenRead(), true);
             }
