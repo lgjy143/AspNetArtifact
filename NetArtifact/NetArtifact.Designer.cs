@@ -41,6 +41,8 @@
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabPage1 = new System.Windows.Forms.TabPage();
+            this.groupBox3 = new System.Windows.Forms.GroupBox();
+            this.chkDataExport = new System.Windows.Forms.CheckBox();
             this.tabPage2 = new System.Windows.Forms.TabPage();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.btnDC = new System.Windows.Forms.Button();
@@ -49,15 +51,13 @@
             this.label1 = new System.Windows.Forms.Label();
             this.splitter1 = new System.Windows.Forms.Splitter();
             this.saveFileDialog1 = new System.Windows.Forms.SaveFileDialog();
-            this.chkDataExport = new System.Windows.Forms.CheckBox();
-            this.groupBox3 = new System.Windows.Forms.GroupBox();
             this.参数.SuspendLayout();
             this.groupBox1.SuspendLayout();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
+            this.groupBox3.SuspendLayout();
             this.tabPage2.SuspendLayout();
             this.groupBox2.SuspendLayout();
-            this.groupBox3.SuspendLayout();
             this.SuspendLayout();
             // 
             // 参数
@@ -188,6 +188,26 @@
             this.tabPage1.Text = "发布配置";
             this.tabPage1.UseVisualStyleBackColor = true;
             // 
+            // groupBox3
+            // 
+            this.groupBox3.Controls.Add(this.chkDataExport);
+            this.groupBox3.Location = new System.Drawing.Point(14, 175);
+            this.groupBox3.Name = "groupBox3";
+            this.groupBox3.Size = new System.Drawing.Size(390, 40);
+            this.groupBox3.TabIndex = 12;
+            this.groupBox3.TabStop = false;
+            this.groupBox3.Text = "配置";
+            // 
+            // chkDataExport
+            // 
+            this.chkDataExport.AutoSize = true;
+            this.chkDataExport.Location = new System.Drawing.Point(11, 16);
+            this.chkDataExport.Name = "chkDataExport";
+            this.chkDataExport.Size = new System.Drawing.Size(240, 16);
+            this.chkDataExport.TabIndex = 7;
+            this.chkDataExport.Text = "数据导出配置（适用oracle不支持菜单）";
+            this.chkDataExport.UseVisualStyleBackColor = true;
+            // 
             // tabPage2
             // 
             this.tabPage2.Controls.Add(this.groupBox2);
@@ -262,26 +282,6 @@
             this.splitter1.TabIndex = 9;
             this.splitter1.TabStop = false;
             // 
-            // chkDataExport
-            // 
-            this.chkDataExport.AutoSize = true;
-            this.chkDataExport.Location = new System.Drawing.Point(11, 16);
-            this.chkDataExport.Name = "chkDataExport";
-            this.chkDataExport.Size = new System.Drawing.Size(96, 16);
-            this.chkDataExport.TabIndex = 7;
-            this.chkDataExport.Text = "数据导出配置";
-            this.chkDataExport.UseVisualStyleBackColor = true;
-            // 
-            // groupBox3
-            // 
-            this.groupBox3.Controls.Add(this.chkDataExport);
-            this.groupBox3.Location = new System.Drawing.Point(14, 175);
-            this.groupBox3.Name = "groupBox3";
-            this.groupBox3.Size = new System.Drawing.Size(390, 40);
-            this.groupBox3.TabIndex = 12;
-            this.groupBox3.TabStop = false;
-            this.groupBox3.Text = "配置";
-            // 
             // NetArtifact
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
@@ -296,11 +296,11 @@
             this.groupBox1.ResumeLayout(false);
             this.tabControl1.ResumeLayout(false);
             this.tabPage1.ResumeLayout(false);
+            this.groupBox3.ResumeLayout(false);
+            this.groupBox3.PerformLayout();
             this.tabPage2.ResumeLayout(false);
             this.groupBox2.ResumeLayout(false);
             this.groupBox2.PerformLayout();
-            this.groupBox3.ResumeLayout(false);
-            this.groupBox3.PerformLayout();
             this.ResumeLayout(false);
 
         }
