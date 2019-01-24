@@ -15,6 +15,7 @@ using System.Management.Automation;
 using System.Management.Automation.Runspaces;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Xml;
 
@@ -346,7 +347,7 @@ namespace NetArtifact
         }
 
         //打包发布文件
-        private string Pack(Utils.RichTextBoxUtils richText)
+        private string Pack(Utils.RichTextBoxUtils richText, string dateFileStr)
         {
             richText.Write("正在打包发布文件");
 
@@ -368,7 +369,11 @@ namespace NetArtifact
                 }
                 softVersion = "V" + softVersion;
 
-                var to = txtPublishProfiles.Text + "\\" + softVersion + ".zip";
+                var dateFileDirStr = Path.Combine(txtPublishProfiles.Text, dateFileStr);
+
+                CreateDirNot(dateFileDirStr);
+
+                var to = Path.Combine(dateFileDirStr, softVersion + ".zip");
 
                 retVal = ArchiveFromTo(dirPublish, to);
                 if (!string.IsNullOrEmpty(retVal))
@@ -384,6 +389,11 @@ namespace NetArtifact
                 richText.Write("打包发布文件错误:" + retVal);
             }
             return retVal;
+        }
+
+        private void CreateDirNot(string dateFileDirStr)
+        {
+            if (!Directory.Exists(dateFileDirStr)) { Directory.CreateDirectory(dateFileDirStr); }
         }
 
         #region 文件压缩
@@ -535,7 +545,7 @@ namespace NetArtifact
             return retVal;
         }
         //数据配置导出
-        private string DataExport(RichTextBoxUtils richText)
+        private string DataExport(RichTextBoxUtils richText, string dateFileStr)
         {
             var retVal = string.Empty;
             richText.Write("正在数据配置导出");
@@ -575,7 +585,11 @@ namespace NetArtifact
                 {
                     byte[] bytes = GetBinaryFormatDataSet(ds);
 
-                    FileStream fs = new FileStream(Path.Combine(txtPublishProfiles.Text, DateTime.Now.ToString("yyyyMMddHHmmss") + ".bak"), FileMode.Create);
+                    var dateFileDirStr = Path.Combine(txtPublishProfiles.Text, dateFileStr);
+
+                    CreateDirNot(dateFileDirStr);
+
+                    FileStream fs = new FileStream(Path.Combine(dateFileDirStr, DateTime.Now.ToString("yyyyMMddHHmmss") + ".bak"), FileMode.Create);
                     fs.Write(bytes, 0, bytes.Length);
                     fs.Close();
 
@@ -636,6 +650,8 @@ namespace NetArtifact
         {
             SetEnable(false);
 
+            var dateFileStr = DateTime.Now.ToString("yyyy-MM-dd HH");
+
             var retVal = string.Empty;
 
             var richText = new Utils.RichTextBoxUtils(this.rtbMessage);
@@ -650,13 +666,13 @@ namespace NetArtifact
             if (VerifyResult(retVal))
                 return;
             //打包发布文件
-            retVal = Pack(richText);
+            retVal = Pack(richText, dateFileStr);
             if (VerifyResult(retVal))
                 return;
             //先导出数据配置
             if (chkDataExport.Checked)
             {
-                retVal = DataExport(richText);
+                retVal = DataExport(richText, dateFileStr);
                 if (VerifyResult(retVal))
                     return;
             }
