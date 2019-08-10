@@ -250,7 +250,7 @@ namespace NetArtifact
                 //当前时间
                 var dateTime = DateTime.Now;
                 //最新版本号
-                var v = $"{softVersion.Split('.')[0]}.{dateTime.ToString("yy.MM.ddhh")}";
+                var v = $"{softVersion.Split('.')[0]}.{dateTime.ToString("yy.MM.ddHH")}";
                 //1.20.08.0511 大版本.年.月.日时
                 xml.DocumentElement.GetElementsByTagName("SoftVersion")[0].InnerText = v;
                 //保存修改值
@@ -698,6 +698,7 @@ namespace NetArtifact
             retVal = UpateVersion(richText);
             if (VerifyResult(retVal))
                 return;
+
             //发布解决方案
             retVal = Publish(richText);
             if (VerifyResult(retVal))
