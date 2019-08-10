@@ -229,6 +229,43 @@ namespace NetArtifact
             return bo;
         }
 
+        //修改/Config/SystemConfig.config版本号
+        private string UpateVersion(Utils.RichTextBoxUtils richText)
+        {
+            var retVal = string.Empty;
+            richText.Write("正在修改版本号");
+            try
+            {
+                //解决方案路径
+                var sln = txtSln.Text;
+                //解决方案目录
+                var dirSln = Path.GetDirectoryName(sln);
+                //hy.Web/Config/SystemConfig.config
+                var pathVersion = Path.Combine(dirSln, "hy.Web", "Config", "SystemConfig.config");
+                //xml加载
+                XmlDocument xml = new XmlDocument();
+                xml.Load(pathVersion);
+                //获取旧版本信息
+                var softVersion = xml.DocumentElement.GetElementsByTagName("SoftVersion")[0].InnerText;
+                //当前时间
+                var dateTime = DateTime.Now;
+                //最新版本号
+                var v = $"{softVersion.Split('.')[0]}.{dateTime.ToString("yy.MM.ddhh")}";
+                //1.20.08.0511 大版本.年.月.日时
+                xml.DocumentElement.GetElementsByTagName("SoftVersion")[0].InnerText = v;
+                //保存修改值
+                xml.Save(pathVersion);
+
+                richText.Write("修改版本号完成.");
+            }
+            catch (Exception ex)
+            {
+                retVal = "执行修改版本号出错：" + ex.Message;
+                richText.Write("修改版本号:" + retVal);
+            }
+            return retVal;
+        }
+
         //发布解决方案
         private string Publish(Utils.RichTextBoxUtils richText)
         {
@@ -657,6 +694,10 @@ namespace NetArtifact
             var richText = new Utils.RichTextBoxUtils(this.rtbMessage);
 
             richText.Write("==========发布程序开始==========");
+            //修改/Config/SystemConfig.config版本号
+            retVal = UpateVersion(richText);
+            if (VerifyResult(retVal))
+                return;
             //发布解决方案
             retVal = Publish(richText);
             if (VerifyResult(retVal))
@@ -697,9 +738,16 @@ namespace NetArtifact
         {
             SetEnable(true);
 
-            if (e.Error != null)
-            {
+            if (e.Error != null) { }
 
+            string dir = txtPublishProfiles.Text;
+            if (!string.IsNullOrEmpty(dir))
+            {
+                //存在目录,打开
+                if (Directory.Exists(dir)) System.Diagnostics.Process.Start("Explorer.exe", dir);
+
+                //if (MessageBox.Show("是否打开发布目录?", "打开发布目录", MessageBoxButtons.YesNo) == DialogResult.Yes)
+                //    System.Diagnostics.Process.Start("Explorer.exe", dir);
             }
         }
 
