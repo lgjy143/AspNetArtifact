@@ -175,13 +175,19 @@ namespace NetArtifact
             //txtSln.Text = @"E:\workspace\vssWork\Source\EAS_ShoeERP\EAS_ShoeERP.sln";
             //txtPublishProfiles.Text = @"C:\Users\U724\Desktop\Artifact";
 
+            string SystemCodeStr = System.Configuration.ConfigurationManager.AppSettings["SystemCode"];
+
             foreach (var item in Enum.GetValues(typeof(SystemType)))
             {
                 var sysType = (SystemType)item;
-                var description = (DescriptionAttribute)(sysType.GetType().GetField(sysType.ToString())
-                                    .GetCustomAttributes(typeof(DescriptionAttribute), true).FirstOrDefault());
+                int intSysType = (int)sysType;
+                if (SystemCodeStr.Contains(intSysType.ToString()))
+                {
+                    var description = (DescriptionAttribute)(sysType.GetType().GetField(sysType.ToString())
+                    .GetCustomAttributes(typeof(DescriptionAttribute), true).FirstOrDefault());
 
-                cbbSystemType.Items.Add(new ListItem() { Text = description.Description, Value = ((int)item).ToString() });
+                    cbbSystemType.Items.Add(new ListItem() { Text = description.Description, Value = ((int)item).ToString() });
+                }
             }
         }
         private void btnSln_Click(object sender, EventArgs e)
@@ -326,16 +332,40 @@ namespace NetArtifact
             string retVal = string.Empty;
 
             var listRemoveDir = new List<string> { "App_Data" };
-            var listRemoveConfig = new List<string>() { "log4net.config", "Web.config" };
-            var dirConfig = "Config";
-            var listConfigDirConfig = new List<string>() { "appSettings.config", "connectionStrings.config" };
+            var listConfigDirConfig = System.Configuration.ConfigurationManager.AppSettings["deleteFiles"].Split(',').ToList();
 
             var listRemove = new List<string>();
             listRemove.AddRange(listRemoveDir);
-            listRemove.AddRange(listRemoveConfig);
             listRemove.AddRange(listConfigDirConfig);
 
             richText.Write(string.Format("正在删除配置,{0}", string.Join(",", listRemove)));
+
+            #region 需要删除的目录下的文件
+            List<FileConfiDTO> DirFileConfig = new List<FileConfiDTO>();
+            foreach (string str in listConfigDirConfig)
+            {
+                string[] arr = str.Split('/');
+                if (arr.Length > 2)
+                {
+                    retVal = $"文件配置错误,应该使用 / 隔开,只支持一级目录：{str}";
+                    richText.Write("删除配置错误:" + retVal);
+                    return retVal;
+                }
+                FileConfiDTO model = new FileConfiDTO();
+                if (arr.Length == 1)
+                {
+                    model.DirName = "";
+                    model.FileName = arr[0];
+                }
+                else if (arr.Length == 2)
+                {
+                    model.DirName = arr[0];
+                    model.FileName = arr[1];
+                }
+                DirFileConfig.Add(model);
+            }
+            #endregion
+
             try
             {
                 var dirArtifact = Path.Combine(txtPublishProfiles.Text, "Artifact");
@@ -344,32 +374,50 @@ namespace NetArtifact
                 var dirFiles = dirFileInfo.GetFiles();
                 if (dirFiles != null && dirFiles.Count() > 0)
                 {
+                    #region 删除根目录的配置文件
                     foreach (var item in dirFiles)
                     {
-                        if (listRemoveConfig.Contains(item.Name))
-                            item.Delete();
+                        #region 删除根目录的配置文件
+                        foreach (var en in DirFileConfig)
+                        {
+                            if (string.IsNullOrEmpty(en.DirName))
+                            {
+                                if (item.Name.ToLower() == en.FileName.ToLower())
+                                    item.Delete();
+                            }
+                        }
+                        #endregion
                     }
-                }
+                    #endregion
+                }                
+
                 var dirs = dirFileInfo.GetDirectories();
                 if (dirs != null && dirs.Count() > 0)
                 {
                     foreach (var dir in dirs)
                     {
+                        #region 删除文件夹   
                         if (listRemoveDir.Contains(dir.Name))
                             dir.Delete(true);
+                        #endregion
 
-                        if (dir.Name == dirConfig)
+                        #region 删除 一级目录下面的文件
+                        foreach (var en in DirFileConfig)
                         {
-                            var dirConfigFiles = dir.GetFiles();
-                            if (dirConfigFiles != null && dirConfigFiles.Count() > 0)
+                            if (en.DirName.ToLower() == dir.Name.ToLower())
                             {
-                                foreach (var item in dirConfigFiles)
+                                var dirConfigFiles = dir.GetFiles();
+                                if (dirConfigFiles != null && dirConfigFiles.Count() > 0)
                                 {
-                                    if (listConfigDirConfig.Contains(item.Name))
-                                        item.Delete();
+                                    foreach (var item in dirConfigFiles)
+                                    {
+                                        if (item.Name.ToLower() == en.FileName.ToLower())
+                                            item.Delete();
+                                    }
                                 }
                             }
                         }
+                        #endregion
                     }
                 }
 
@@ -839,9 +887,19 @@ namespace NetArtifact
         ShoeERP = 1,
         [Description("服装件资")]
         ClothPW = 2,
-        [Description("鞋业鞋材")]
-        ShoeMat = 3
+        [Description("鞋底ERP")]
+        ShoeMat = 3,
+        [Description("渠道系统")]
+        QD = 4,
+        [Description("考勤系统")]
+        Attendance = 5,
+        [Description("爱定客生产ERP")]
+        IDXERP = 6
     }
 
-
+    public class FileConfiDTO
+    {
+        public string DirName { get; set; }
+        public string FileName { get; set; }
+    }
 }

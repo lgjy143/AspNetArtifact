@@ -289,6 +289,7 @@
             this.ClientSize = new System.Drawing.Size(433, 448);
             this.Controls.Add(this.tabControl1);
             this.Name = "NetArtifact";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "NetArtifact";
             this.Load += new System.EventHandler(this.NetArtifact_Load);
             this.参数.ResumeLayout(false);
